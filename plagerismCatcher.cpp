@@ -57,7 +57,7 @@ void hash(string chunk, unsigned long HASH_TABLE_SIZE, Node *hashTable[], int in
 }
 
 
-void graphKey(Node *hashTable[], int key, int collisions[][75]){            //need to change based on what size it is
+void graphKey(Node *hashTable[], int key, int collisions[][1400]){            //need to change based on what size it is
     Node *head;
     Node *other;
     for(head = hashTable[key]; head != NULL; head = head->next){
@@ -83,59 +83,61 @@ void graphKey(Node *hashTable[], int key, int collisions[][75]){            //ne
 
 int main(int argc, char *argv[])
 {
-    string dir = string(argv[1]); 
+    string dir = string(argv[1]);
     vector<string> files = vector<string>();
 
     getdir(dir,files);
     files.erase(files.begin(),files.begin()+2);
 
     const int CHUNK_LENGTH = atoi(argv[2]);
-    const unsigned long HASH_TABLE_SIZE = 100007;
+    const unsigned long HASH_TABLE_SIZE = 1000003;
 
     Node *hashTable[HASH_TABLE_SIZE] = {NULL};
-    int collisions[files.size()][75];
+    int collisions[files.size()][1400];
     memset(collisions, 0, sizeof(collisions));
 
 
     for (unsigned int i = 0;i < files.size();i++) {         //opens every file
-        cout << i << " - " << files[i] << endl << endl;
+        if(files[i] != ".txt") {
+            cout << files[i] << endl;
+            vector <string> chunk = vector<string>();
 
-        vector<string> chunk = vector<string>();
+            string input = "sm_doc_set";
+            input += "/";
+            input += files[i];
 
-        string input = "sm_doc_set";
-        input += "/";
-        input += files[i];
+            ifstream inFile;
+            inFile.open(input.c_str());
 
-        ifstream inFile;
-        inFile.open(input.c_str());
-
-        string s;
-        inFile >> s;
-
-        while (!inFile.eof()) {                      //gets every chunk for each file and hashes them
-            if(chunk.size()>CHUNK_LENGTH){
-                chunk.erase(chunk.begin());
-                chunk.push_back(s);
-            }else{
-                chunk.push_back(s);
-            }
-
+            string s;
             inFile >> s;
-            string output = "";
 
-            if(chunk.size()>CHUNK_LENGTH-1){
-                for(int j=0; j<CHUNK_LENGTH;j++){
 
-                    for(int k=0;k<chunk[j].size();k++){        //removes non alphanum
-                        if(ispunct(chunk[j][k])){
-                            chunk[j].erase(k);
-                        }
-                    }
-                    transform(chunk[j].begin(),chunk[j].end(),chunk[j].begin(),::tolower);
-
-                    output += chunk[j];
+            while (!inFile.eof()) {                      //gets every chunk for each file and hashes them
+                if (chunk.size() > CHUNK_LENGTH) {
+                    chunk.erase(chunk.begin());
+                    chunk.push_back(s);
+                } else {
+                    chunk.push_back(s);
                 }
-                hash(output, HASH_TABLE_SIZE, hashTable, i);
+
+                inFile >> s;
+                string output = "";
+
+                if (chunk.size() > CHUNK_LENGTH - 1) {
+                    for (int j = 0; j < CHUNK_LENGTH; j++) {
+
+                        for (int k = 0; k < chunk[j].size(); k++) {        //removes non alphanum
+                            if (ispunct(chunk[j][k])) {
+                                chunk[j].erase(k);
+                            }
+                        }
+                        transform(chunk[j].begin(), chunk[j].end(), chunk[j].begin(), ::tolower);
+
+                        output += chunk[j];
+                    }
+                    hash(output, HASH_TABLE_SIZE, hashTable, i);
+                }
             }
         }
     }
